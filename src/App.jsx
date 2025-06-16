@@ -77,8 +77,8 @@ export default function App() {
         <NavSearchResults />
       </Nav>
       <Main>
-        <div className="row mt-">
-          <div className="col-md-9">
+        <div className="row mt-3">
+          <div className="col-md-9 ">
             <ListContainer>
               <MovieList movies={movies} />
             </ListContainer>
@@ -87,6 +87,7 @@ export default function App() {
             <ListContainer>
               <>
                 <MyListSummary selectedMovies={selectedMovies} />
+                <MyMovieList selectedMovies={selectedMovies} />
               </>
             </ListContainer>
           </div>
@@ -140,7 +141,7 @@ function ListContainer({ children }) {
   return (
     <div className="movie-list">
       <button
-        className="btn btn-sm btn-outline-dark mt-3"
+        className="btn btn-sm btn-outline-dark mb-3"
         onClick={() => setIsOpen((val) => !val)}
       >
         {isOpen ? (
@@ -156,7 +157,7 @@ function ListContainer({ children }) {
 
 function MovieList({ movies }) {
   return (
-    <div className="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 mt-1">
+    <div className="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 ">
       {movies.map((movie) => (
         <Movie movie={movie} key={movie.Id} />
       ))}
@@ -169,6 +170,7 @@ function Movie({ movie }) {
     <div className="col mb-2">
       <div className="card">
         <img
+          className="img-fluid rounded-start"
           src={
             movie.Poster
               ? `https://media.themoviedb.org/t/p/w440_and_h660_face` +
@@ -205,6 +207,43 @@ function MyListSummary({ selectedMovies }) {
             <i className="bi bi-hourglass-split text-warning me-1"></i>
             <span>{avgDuration} dk</span>
           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MyMovieList({ selectedMovies }) {
+  return selectedMovies.map((movie) => (
+    <MyListMovie movie={movie} key={movie.Id} />
+  ));
+}
+
+function MyListMovie({ movie }) {
+  return (
+    <div className="card mb-2">
+      <div className="row">
+        <div className="col-4">
+          <img
+            src={movie.Poster}
+            alt={movie.Title}
+            className="img-fluid rounded-start"
+          />
+        </div>
+        <div className="col-8 ">
+          <div className="card-body">
+            <h6 className="card-title">{movie.Title}</h6>
+            <div>
+              <p>
+                <i className="bi bi-star-fill text-warning me-1"></i>
+                <span>{movie.rating}</span>
+              </p>
+              <p>
+                <i className="bi bi-hourglass text-warning me-1"></i>
+                <span>{movie.duration} dk</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
