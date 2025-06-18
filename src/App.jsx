@@ -63,7 +63,7 @@ import { use, useEffect, useState } from "react";
 // ];
 
 const getAverage = (array) =>
-  array.reduce((sum, value) => sum + value, 2) / array.length;
+  array.reduce((sum, value) => sum + value / array.length, 0);
 
 const api_key = "68724289bab44132ad7967dbb949474e";
 
@@ -73,6 +73,7 @@ export default function App() {
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [alert, setAlert] = useState("Lütfen en az 4 karakter girin.");
 
   useEffect(
     function () {
@@ -123,8 +124,9 @@ export default function App() {
           <div className="col-md-9 ">
             <ListContainer>
               {loading && <Loading />}
-              {!error & !loading && <MovieList movies={movies} />}
+              {!loading & !error && <MovieList movies={movies} />}
               {error && <ErrorMessage message={error} />}
+              {query.length < 4 && <Alert alert={alert} />}
             </ListContainer>
           </div>
           <div className="col-md-3">
@@ -143,6 +145,10 @@ export default function App() {
 
 function ErrorMessage({ message }) {
   return <div className="alert alert-danger">{message}</div>;
+}
+
+function Alert({ alert }) {
+  return <div className="alert alert-warning">{alert}</div>;
 }
 
 function Loading() {
@@ -234,9 +240,9 @@ function Movie({ movie }) {
         <img
           className="img-fluid rounded-start"
           src={
-            movie.poster
+            movie.poster_path
               ? `https://media.themoviedb.org/t/p/w440_and_h660_face` +
-                movie.poster
+                movie.poster_path
               : "/img/no-image.jpg"
           }
           alt={movie.title}
