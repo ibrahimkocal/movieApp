@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 
 // const movie_list = [
 //   {
@@ -71,45 +71,60 @@ export default function App() {
   const [query, setQuery] = useState("last");
   const [movies, setMovies] = useState([]);
   const [selectedMovies, setSelectedMovies] = useState([]);
-  const [loading, setLoading] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function getMovies() {
-    try {
-      setLoading(true);
-      setError("");
-      const res = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${query}`
-      );
+  useEffect(
+    function () {
+      async function getMovies() {
+        try {
+          setLoading(true);
+          setError("");
+          const res = await fetch(
+            `https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${query}`
+          );
 
-      if (!res.ok) {
-        throw new Error("Bilinmeyen hata oluştu.");
+          if (!res.ok) {
+            throw new Error("Bilinmeyen hata oluştu.");
+          }
+
+          const data = await res.json();
+          if (data.total_results === 0) {
+            throw new Error("Film bulunamadı.");
+          }
+
+          setMovies(data.results);
+        } catch (err) {
+          setError(err.message);
+        }
+        setLoading(false);
       }
 
-      const data = await res.json();
-      if (data.total_results === 0) {
-        throw new Error("Film bulunamadı.");
+      if (query.length < 4) {
+        setMovies([]);
+        setError("");
+        return;
       }
-    } catch (err) {
-      setError(err.message);
-    }
-    setLoading(false);
-  }
 
-  getMovies();
+      getMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <Nav>
         <Logo />
-        <Search />
-        <NavSearchResults />
+        <Search query={query} setQuery={setQuery} />
+        <NavSearchResults movies={movies} />
       </Nav>
       <Main>
         <div className="row mt-3">
           <div className="col-md-9 ">
             <ListContainer>
-              <MovieList movies={movies} />
+              {loading && <Loading />}
+              {!error & !loading && <MovieList movies={movies} />}
+              {error && <ErrorMessage message={error} />}
             </ListContainer>
           </div>
           <div className="col-md-3">
@@ -123,6 +138,18 @@ export default function App() {
         </div>
       </Main>
     </>
+  );
+}
+
+function ErrorMessage({ message }) {
+  return <div className="alert alert-danger">{message}</div>;
+}
+
+function Loading() {
+  return (
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
   );
 }
 
@@ -145,18 +172,24 @@ function Logo() {
   );
 }
 
-function Search() {
+function Search({ query, setQuery }) {
   return (
     <div className="col-4">
-      <input type="text" className="form-control" placeholder="Film ara..." />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="form-control"
+        placeholder="Film ara..."
+      />
     </div>
   );
 }
 
-function NavSearchResults() {
+function NavSearchResults({ movies }) {
   return (
     <div className="col-4 text-end">
-      <strong>5</strong> kayıt bulundu.
+      <strong>{movies.length}</strong> kayıt bulundu.
     </div>
   );
 }
@@ -188,7 +221,7 @@ function MovieList({ movies }) {
   return (
     <div className="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 ">
       {movies.map((movie) => (
-        <Movie movie={movie} key={movie.Id} />
+        <Movie movie={movie} key={movie.id} />
       ))}
     </div>
   );
@@ -201,18 +234,18 @@ function Movie({ movie }) {
         <img
           className="img-fluid rounded-start"
           src={
-            movie.Poster
+            movie.poster
               ? `https://media.themoviedb.org/t/p/w440_and_h660_face` +
-                movie.Poster
+                movie.poster
               : "/img/no-image.jpg"
           }
-          alt={movie.Title}
+          alt={movie.title}
         />
         <div className="card-body">
-          <h6 className="card-title">{movie.Title}</h6>
+          <h6 className="card-title">{movie.title}</h6>
           <div>
             <i className="bi bi-calendar2-date me-1"></i>
-            <span>{movie.Year}</span>
+            <span>{movie.release_date}</span>
           </div>
         </div>
       </div>
