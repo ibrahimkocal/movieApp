@@ -72,8 +72,8 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState("");
   const [error, setError] = useState("");
-  const [alert, setAlert] = useState("Lütfen en az 4 karakter girin.");
 
   useEffect(
     function () {
@@ -104,6 +104,7 @@ export default function App() {
       if (query.length < 4) {
         setMovies([]);
         setError("");
+        setAlert("Lütfen en az 4 karakter girin.");
         return;
       }
 
@@ -148,7 +149,7 @@ function ErrorMessage({ message }) {
 }
 
 function Alert({ alert }) {
-  return <div className="alert alert-warning">{alert}</div>;
+  return <div className="alert alert-warning mt-4">{alert}</div>;
 }
 
 function Loading() {
